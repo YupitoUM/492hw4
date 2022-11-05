@@ -19,12 +19,12 @@ class MCTS():
         self.args = args
         self.Vs = {} 
 
-        # the member variables below here are the important ones. You'll (probably) use all of these
-        self.Qsa = {}  # stores Q values for each "(state, action)"
-        self.Nsa = {}  # stores the number of times "(state, action)" was visited
-        self.Ps = {}  # stores initial policy for "state" (returned by neural net)
-        self.Ns = {}  # stores the number of times "state" was visited. You'll only need to reference this variable, never modify it
+        self.Qsa = {} 
+        self.Nsa = {}  
+        self.Ps = {}  
+        self.Ns = {}  
         
+        # this is the only member variable you'll have to use. It'll be used in select()
         self.visited = set() # all "state" positions we have seen so far
 
     def getActionProb(self, canonicalBoard, temp=1):
@@ -36,8 +36,7 @@ class MCTS():
             probs: a policy vector where the probability of the ith action is
                    proportional to Nsa[(s,a)]**(1./temp)
         """
-        for i in range(self.args.numMCTSSims):
-            self.search(canonicalBoard)
+        self.search(canonicalBoard)
 
         s = self.game.stringRepresentation(canonicalBoard)
         counts = [self.Nsa[(s, a)] if (s, a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
@@ -87,7 +86,7 @@ class MCTS():
 
         self.Vs[state] = valids
         self.Ns[state] = 0
-        return self.Ps[state], val
+        return val
 
     def getValidActions(self, state):
         """
@@ -117,7 +116,42 @@ class MCTS():
         nextState = self.game.getCanonicalForm(nextState, nextPlayer)
         return nextState
 
-    def search(self, canonicalBoard):
+    def getConfidenceVal(self, state, action):
+        if (state, action) not in self.Qsa:
+            self.Qsa[(state, action)] = 0
+            self.Nsa[(state, action)] = 0
+
+        u = self.Qsa[(state, action)] + self.args.cpuct * self.Ps[state][action] * math.sqrt(self.Ns[state]) / (
+                    1 + self.Nsa[(state, action)])
+                
+        return u
+
+    def updateValues(self, r, state, action):
+        self.Qsa[(state, action)] = (self.Nsa[(state, action)] * self.Qsa[(state, action)] + r) / (self.Nsa[(state, action)] + 1)
+        self.Nsa[(state, action)] += 1
+        self.Ns[state] += 1
+
+    def expand(self, state):
+        self.visited.add(state)
+
+    def select(self, state, board):
+        # TODO: your implementation goes here
+
+
+        # End implementation
+        board = self.nextState(board, action)
+        state = self.game.stringRepresentation(board)
+        return state, board, action, None
+
+    def backpropagate(self, seq):
+        # TODO: your implementation goes here
+
+
+    def simulate(self, state, board):
+        # TODO: your implementation goes here
+
+
+    def search(self, initial_board):
         """
         This function performs one iteration of MCTS. It is recursively called
         till a leaf node is found. The action chosen at each node is one that
@@ -136,13 +170,7 @@ class MCTS():
         Returns:
             v: the negative of the value of the current canonicalBoard
         """
-        state = self.game.stringRepresentation(canonicalBoard)
-        cpuct = self.args.cpuct
+        initial_state = self.game.stringRepresentation(initial_board)
 
-        # TODO: Implementation goes here
-
-        # End Implementation
-        # We will keep update this member variable for you. Never modify this variable, just use it
-        # How to use: instead of calling "sum(N[s])" as seen in the author's search implementation, just call "self.Ns[state]" instead
-        self.Ns[state] += 1 
-        return -v
+        for _ in range(self.args.numMCTSSims):
+            # TODO: your implementation goes here
