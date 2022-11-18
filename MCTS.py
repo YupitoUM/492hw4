@@ -136,7 +136,20 @@ class MCTS():
 
     def select(self, state, board):
         # TODO: your implementation goes here
-
+        r = self.gameEnded(board)
+        if r != 0:
+            return None, None, None, -r
+        elif state not in self.visited:
+            self.expand(state)
+            r = self.simulate(state, board)
+            return None, None, None, r
+        utility = float('-inf')
+        action = None
+        for a in self.getValidActions(state):
+            u = self.getConfidenceVal(state, a)
+            if u > utility:
+                utility = u
+                action = a
 
         # End implementation
         board = self.nextState(board, action)
@@ -145,10 +158,20 @@ class MCTS():
 
     def backpropagate(self, seq):
         # TODO: your implementation goes here
+        reward = 0
+        seq.reverse()
+        for state, action, r in seq:
+            if r:
+                reward = r
+            else:
+                self.updateValues(reward, state, action)
+                reward = r
 
 
     def simulate(self, state, board):
         # TODO: your implementation goes here
+        reward = self.simulate(state, board)
+        return reward
 
 
     def search(self, initial_board):
@@ -173,3 +196,15 @@ class MCTS():
 
         for _ in range(self.args.numMCTSSims):
             # TODO: your implementation goes here
+            state = initial_state
+            board = initial_board
+            seq = list()
+            reward = None
+            while not reward:
+                s, b, a, r = self.select(state, board)
+                seq.append((state, a, r))
+                state = s
+                board = b
+                reward = r
+            self.backpropagate(seq)
+        return initial_board
