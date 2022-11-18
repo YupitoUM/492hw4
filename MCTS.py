@@ -142,7 +142,7 @@ class MCTS():
         elif state not in self.visited:
             self.expand(state)
             r = self.simulate(state, board)
-            return None, None, None, r
+            return None, None, None, -r
         utility = float('-inf')
         action = None
         for a in self.getValidActions(state):
