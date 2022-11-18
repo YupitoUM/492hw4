@@ -170,7 +170,7 @@ class MCTS():
 
     def simulate(self, state, board):
         # TODO: your implementation goes here
-        reward = self.simulate(state, board)
+        reward = self.predict(state, board)
         return reward
 
 
