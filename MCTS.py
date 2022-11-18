@@ -161,11 +161,11 @@ class MCTS():
         reward = 0
         seq.reverse()
         for state, action, r in seq:
-            if r:
+            if r is not None:
                 reward = r
             else:
                 self.updateValues(reward, state, action)
-                reward = r
+                reward = -reward
 
 
     def simulate(self, state, board):
